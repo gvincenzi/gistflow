@@ -4,6 +4,7 @@ import com.gist.flow.ingester.IFlowIngester;
 import com.gist.flow.model.entity.FlowResource;
 import lombok.Data;
 import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -15,7 +16,7 @@ import java.util.List;
 import java.util.Set;
 
 @Data
-@Log
+@Slf4j
 @Component
 public class TelegramBotIngester extends TelegramLongPollingBot implements IFlowIngester<FlowResource> {
     @Value("${telegram.bot.username}")
@@ -65,7 +66,7 @@ public class TelegramBotIngester extends TelegramLongPollingBot implements IFlow
                 Thread.sleep(1000);
             }
         } catch (TelegramApiException | InterruptedException e) {
-            log.severe(e.getMessage());
+            log.error(e.getMessage());
         }
     }
 

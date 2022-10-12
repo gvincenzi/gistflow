@@ -5,6 +5,7 @@ import com.gist.flow.model.entity.FlowResource;
 import lombok.Data;
 import lombok.extern.java.Log;
 import com.gist.flow.ingester.IFlowIngester;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
@@ -27,7 +28,7 @@ import java.util.Calendar;
 import java.util.Map;
 import java.util.Set;
 
-@Log
+@Slf4j
 @Data
 @Service
 @Profile("soffblog")

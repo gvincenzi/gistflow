@@ -11,6 +11,7 @@ import com.sun.syndication.io.SyndFeedInput;
 import com.sun.syndication.io.XmlReader;
 import lombok.Data;
 import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -27,7 +28,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Data
-@Log
+@Slf4j
 @Service
 @Profile("default")
 public class RssFlowSensor implements IFlowSensor<FlowResource> {
@@ -99,7 +100,7 @@ public class RssFlowSensor implements IFlowSensor<FlowResource> {
                             resources.add(resource);
                         }
                     } catch (Exception e) {
-                        log.severe(e.getMessage());
+                        log.error(e.getMessage());
                     }
                 }
             }
@@ -110,7 +111,7 @@ public class RssFlowSensor implements IFlowSensor<FlowResource> {
                 log.info("RSSFlowSensor - No changes founded");
             }
         } catch (FlowException e) {
-            log.severe(e.getMessage());
+            log.error(e.getMessage());
         }
 
         long nextTimeUpdate = configuration.getRssSensorTimeout() + System.currentTimeMillis();

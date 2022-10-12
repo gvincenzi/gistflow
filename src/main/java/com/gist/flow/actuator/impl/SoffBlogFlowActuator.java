@@ -6,6 +6,7 @@ import com.gist.flow.model.entity.FlowResource;
 import lombok.extern.java.Log;
 import com.gist.flow.actuator.IFlowActuator;
 import com.gist.flow.ingester.impl.WordPressIngester;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.Calendar;
 import java.util.Set;
 
-@Log
+@Slf4j
 @Service
 @Profile("soffblog")
 public class SoffBlogFlowActuator implements IFlowActuator<FlowResource> {
