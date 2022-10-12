@@ -133,11 +133,7 @@ public class RssFlowSensor implements IFlowSensor<FlowResource> {
         Map<String, List<String>> rssfeedByCategory;
         try {
             rssfeedByCategory = getRSSFeedURLByCategory();
-        } catch (IOException e) {
-            throw new FlowException(e);
-        } catch (JDOMException e) {
-            throw new FlowException(e);
-        } catch (IllegalArgumentException e) {
+        } catch (IOException | JDOMException | IllegalArgumentException e) {
             throw new FlowException(e);
         }
 
@@ -162,11 +158,8 @@ public class RssFlowSensor implements IFlowSensor<FlowResource> {
                     reader = new XmlReader(url);
                     // Create Parser RSS
                     feedRead = new SyndFeedInput().build(reader);
-                } catch (FeedException e) {
-                    continue;
-                } catch (IOException e) {
-                    continue;
-                } catch (IllegalArgumentException e) {
+                } catch (FeedException | IOException | IllegalArgumentException e) {
+                    log.error(rssEntryUrl + ">>" + e.getMessage());
                     continue;
                 }
 
