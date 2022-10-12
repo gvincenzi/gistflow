@@ -10,7 +10,6 @@ import com.sun.syndication.io.FeedException;
 import com.sun.syndication.io.SyndFeedInput;
 import com.sun.syndication.io.XmlReader;
 import lombok.Data;
-import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jdom.Document;
@@ -69,38 +68,35 @@ public class RssFlowSensor implements IFlowSensor<FlowResource> {
             for (SyndFeed feed : feeds) {
                 List<SyndEntry> entries = feed.getEntries();
                 for (SyndEntry entry : entries) {
-                    try {
-                        if (entry.getPublishedDate() == null || entry.getDescription() == null) {
-                            continue;
+                    if (entry.getPublishedDate() == null || entry.getDescription() == null) {
+                        continue;
+                    }
+                    resource = new FlowResource();
+                    resource.setName(cleanString(entry.getTitle()));
+                    if (entry.getPublishedDate().after(Calendar.getInstance().getTime())) {
+                        resource.setStartDateOfValidity(Calendar.getInstance());
+                    } else {
+                        resource.getStartDateOfValidity().setTime(entry.getPublishedDate());
+                    }
+                    StringBuffer content = new StringBuffer();
+                    SyndContent description = entry.getDescription();
+                    List<SyndEnclosure> enclosures = entry.getEnclosures();
+                    for (SyndEnclosure enclosure : enclosures) {
+                        if (enclosure.getType().contains("image/jpeg") && enclosure.getUrl().length() > 0) {
+                            content.append("<img src='" + enclosure.getUrl() + "'/><br>");
                         }
-                        resource = new FlowResource();
-                        resource.setName(cleanString(entry.getTitle()));
-                        if (entry.getPublishedDate().after(Calendar.getInstance().getTime())) {
-                            resource.setStartDateOfValidity(Calendar.getInstance());
-                        } else {
-                            resource.getStartDateOfValidity().setTime(entry.getPublishedDate());
-                        }
-                        StringBuffer content = new StringBuffer();
-                        SyndContent description = entry.getDescription();
-                        List<SyndEnclosure> enclosures = entry.getEnclosures();
-                        for (SyndEnclosure enclosure : enclosures) {
-                            if (enclosure.getType().contains("image/jpeg") && enclosure.getUrl().length() > 0) {
-                                content.append("<img src='" + enclosure.getUrl() + "'/><br>");
-                            }
-                        }
-                        content.append(description.getValue());
-                        String minimizedContent = entry.getLink().length() >= 30 ? entry.getLink().substring(0, 30)
-                                : entry.getLink();
-                        content.append("<br><a href='" + entry.getLink() + "'>(" + minimizedContent + "...)</a>");
-                        resource.setDescription(content.toString());
-                        if ((lastDate == null)
-                                || (lastDate != null && resource.getStartDateOfValidity().compareTo(lastDate) > 0
-                                && !resources.contains(resource)
-                                && resource.getStartDateOfValidity().compareTo(now) <= 0)) {
-                            resources.add(resource);
-                        }
-                    } catch (Exception e) {
-                        log.error(e.getMessage());
+                    }
+                    content.append(description.getValue());
+                    String link = entry.getLink().replaceAll(".+http", "http").trim();
+                    String minimizedContent = link.length() >= 30 ? link.substring(0, 30)
+                            : link;
+                    content.append("<br><a href='" + link + "'>(" + minimizedContent + "...)</a>");
+                    resource.setDescription(content.toString());
+                    if ((lastDate == null)
+                            || (lastDate != null && resource.getStartDateOfValidity().compareTo(lastDate) > 0
+                            && !resources.contains(resource)
+                            && resource.getStartDateOfValidity().compareTo(now) <= 0)) {
+                        resources.add(resource);
                     }
                 }
             }
@@ -110,7 +106,7 @@ public class RssFlowSensor implements IFlowSensor<FlowResource> {
             } else {
                 log.info("RSSFlowSensor - No changes founded");
             }
-        } catch (FlowException e) {
+        } catch (FlowException | IOException e) {
             log.error(e.getMessage());
         }
 
@@ -127,7 +123,7 @@ public class RssFlowSensor implements IFlowSensor<FlowResource> {
      * @throws FlowException
      */
     @SuppressWarnings("unchecked")
-    protected Collection<SyndFeed> getRSSFeedByCategory() throws FlowException {
+    protected Collection<SyndFeed> getRSSFeedByCategory() throws FlowException, IOException {
         List<SyndFeed> output = new ArrayList<SyndFeed>();
         // get urls by category
         Map<String, List<String>> rssfeedByCategory;
@@ -161,6 +157,8 @@ public class RssFlowSensor implements IFlowSensor<FlowResource> {
                 } catch (FeedException | IOException | IllegalArgumentException e) {
                     log.error(rssEntryUrl + ">>" + e.getMessage());
                     continue;
+                } finally {
+                    reader.close();
                 }
 
                 newFeed.setLink(configuration.getRssLink());
@@ -251,7 +249,7 @@ public class RssFlowSensor implements IFlowSensor<FlowResource> {
      * @return
      */
     public static String getUniqueRSSFeedFileName(String category) {
-        return category.replaceAll(" ", "_");
+        return category.replace(" ", "_");
     }
 
     /**
