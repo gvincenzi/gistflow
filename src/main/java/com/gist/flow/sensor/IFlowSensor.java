@@ -13,5 +13,6 @@ import java.util.Set;
  */
 public interface IFlowSensor<T extends FlowResource>{
 	void onChange(Set<T> resources) throws FlowException;
+	void startSensor();
 	Calendar getLastChangeDate();
 }
