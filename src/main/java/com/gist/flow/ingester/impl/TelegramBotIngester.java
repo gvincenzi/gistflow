@@ -26,6 +26,8 @@ public class TelegramBotIngester extends TelegramLongPollingBot implements IFlow
 
     @Value("${telegram.bot.channelId}")
     private String channelId;
+
+    private Integer maxMessage = 5;
     
     @Override
     public void onUpdateReceived(Update update) {
@@ -54,13 +56,18 @@ public class TelegramBotIngester extends TelegramLongPollingBot implements IFlow
     @Override
     public void ingest(Set<FlowResource> contents) {
         try {
+            int i = 0;
             for (FlowResource content : contents) {
+                i++;
                 try {
                     execute(message("@"+channelId, content)); // Call method to send the message
                 } catch (TelegramApiException e) {
                     log.error(e.getMessage());
                     continue;
                 }
+
+                if(i == maxMessage) return;
+
                 Thread.sleep(1000);
             }
         } catch (InterruptedException e) {
