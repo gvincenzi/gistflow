@@ -27,9 +27,6 @@ public class TelegramBotIngester extends TelegramLongPollingBot implements IFlow
     @Value("${telegram.bot.channelId}")
     private String channelId;
     
-    @Value("${telegram.bot.messageHTML}")
-    private String messageHTML;
-    
     @Override
     public void onUpdateReceived(Update update) {
         logMessage(update);
@@ -54,18 +51,9 @@ public class TelegramBotIngester extends TelegramLongPollingBot implements IFlow
                 .setText(text.replace("<br>", "\n"));
     }
 
-    private SendMessage message(String chatId, String text) {
-        return new SendMessage()
-                .setChatId(chatId)
-                .enableHtml(true)
-                .setText(text.replace("<br>", "\n"));
-    }
-
     @Override
     public void ingest(Set<FlowResource> contents) {
         try {
-            execute(message("@"+channelId, String.format(messageHTML,contents.size())));
-            Thread.sleep(5000);
             for (FlowResource content : contents) {
                 try {
                     execute(message("@"+channelId, content)); // Call method to send the message
@@ -75,7 +63,20 @@ public class TelegramBotIngester extends TelegramLongPollingBot implements IFlow
                 }
                 Thread.sleep(1000);
             }
-        } catch (InterruptedException | TelegramApiException e) {
+        } catch (InterruptedException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    public void message(String text) {
+        try {
+            execute(new SendMessage()
+                    .setChatId("@"+channelId)
+                    .enableHtml(true)
+                    .setText(text.replace("<br>", "\n"))
+            ); // Call method to send the message
+            Thread.sleep(5000);
+        } catch (TelegramApiException | InterruptedException e) {
             log.error(e.getMessage());
         }
     }

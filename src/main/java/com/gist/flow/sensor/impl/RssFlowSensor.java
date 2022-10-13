@@ -10,15 +10,11 @@ import com.rometools.rome.feed.synd.SyndEnclosure;
 import com.rometools.rome.feed.synd.SyndEntry;
 import com.rometools.rome.feed.synd.SyndFeed;
 import com.rometools.rome.io.FeedException;
-import com.rometools.rome.io.SAXBuilder;
 import com.rometools.rome.io.SyndFeedInput;
 import com.rometools.rome.io.XmlReader;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.jdom2.Document;
-import org.jdom2.Element;
-import org.jdom2.JDOMException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -27,7 +23,10 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Calendar;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Data
 @Slf4j
@@ -56,8 +55,7 @@ public class RssFlowSensor implements IFlowSensor<FlowResource> {
                 resources.size()));
     }
 
-    @Override
-    @Scheduled(fixedRateString = "${rssflow.rssSensorTimeout}")
+    @Scheduled(cron = "0 0 7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23 ? * *")
     public void startSensor() {
         log.info(String.format("RssFlowSensor has been started with an Actuator of type [%s]",
                 rssFlowActuator.getClass().getName()));
@@ -67,12 +65,12 @@ public class RssFlowSensor implements IFlowSensor<FlowResource> {
 
         FlowResource resource;
         Calendar lastDate = getLastChangeDate();
-        log.info("LastChangeDate : " + new SimpleDateFormat("dd-MMM-yyyy HH:mm").format(lastDate.getTime()));
+        log.debug("LastChangeDate : " + new SimpleDateFormat("dd-MMM-yyyy HH:mm").format(lastDate.getTime()));
 
         for (String feedURL : configuration.getFeeds()) {
             try (XmlReader reader = new XmlReader(new URL(feedURL))) {
                 SyndFeed feed = new SyndFeedInput().build(reader);
-                log.info(feed.getTitle());
+                log.debug(feed.getTitle());
                 for (SyndEntry entry : feed.getEntries()) {
                     if (entry.getPublishedDate() == null || entry.getDescription() == null) {
                         continue;
@@ -121,12 +119,6 @@ public class RssFlowSensor implements IFlowSensor<FlowResource> {
         } else {
             log.info("RssFlowSensor - No changes founded");
         }
-
-
-        long nextTimeUpdate = configuration.getRssSensorTimeout() + System.currentTimeMillis();
-        Calendar nextTimeUpdateCalendar = Calendar.getInstance();
-        nextTimeUpdateCalendar.setTimeInMillis(nextTimeUpdate);
-        log.info(String.format("RssFlowSensor next update [%s]", nextTimeUpdateCalendar.getTime()));
     }
 
     /**
