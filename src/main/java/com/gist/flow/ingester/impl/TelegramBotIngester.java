@@ -52,7 +52,7 @@ public class TelegramBotIngester extends TelegramLongPollingBot implements IFlow
         return new SendMessage()
                 .setChatId(chatId)
                 .enableHtml(true)
-                .setText(text.replace("<br>", "\n"));
+                .setText(text.replace("<br>", "\n").replace("<BR>", "\n"));
     }
 
     @Override
