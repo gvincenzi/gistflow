@@ -5,6 +5,7 @@ import com.gist.flow.model.entity.FlowResource;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -16,6 +17,7 @@ import java.util.Set;
 
 @Data
 @Slf4j
+@Profile("soffblog")
 @Component
 public class TelegramBotIngester extends TelegramLongPollingBot implements IFlowIngester<FlowResource> {
     @Value("${telegram.bot.username}")

@@ -55,7 +55,7 @@ public class RssFlowSensor implements IFlowSensor<FlowResource> {
                 resources.size()));
     }
 
-    @Scheduled(cron = "0 0 7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23 ? * *")
+    @Scheduled(cron = "${rssflow.cron}")
     public void startSensor() {
         log.info(String.format("RssFlowSensor has been started with an Actuator of type [%s]",
                 rssFlowActuator.getClass().getName()));

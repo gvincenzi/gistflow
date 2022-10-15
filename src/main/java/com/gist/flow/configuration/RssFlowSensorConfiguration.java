@@ -10,7 +10,6 @@ import java.util.List;
 
 @Data
 @Configuration
-@Profile("soffblog")
 @ConfigurationProperties("rssflow")
 public class RssFlowSensorConfiguration {
     private Calendar lastChangeDate;
