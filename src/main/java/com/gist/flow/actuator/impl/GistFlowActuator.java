@@ -13,15 +13,15 @@ import java.util.Set;
 
 @Slf4j
 @Service
-@Profile("checkflow")
-public class CheckFlowActuator implements IFlowActuator<FlowResource> {
+@Profile("gist")
+public class GistFlowActuator implements IFlowActuator<FlowResource> {
+	@Autowired
+	private TelegramBotIngester telegramBotIngester;
 
 	@Override
 	public void doAction(Set<FlowResource> resources) throws FlowException {
 		log.info(String.format("CheckFlowActuator doAction has been called with [%d] resources",resources.size()));
-		for(FlowResource resource : resources){
-			log.info(resource.getName());
-		}
+		telegramBotIngester.ingest(resources);
 		log.info(String.format("CheckFlowActuator doAction has been successfully with [%d] resources",resources.size()));
 	}
 

@@ -33,23 +33,27 @@ import java.util.Set;
 @Service
 @Profile("default")
 public class RssFlowSensor implements IFlowSensor<FlowResource> {
-    private IFlowActuator<FlowResource> rssFlowActuator;
+    private Set<IFlowActuator<FlowResource>> rssFlowActuators;
     private Calendar lastChangeDate = Calendar.getInstance();
 
     @Autowired
     private RssFlowSensorConfiguration configuration;
 
     @Autowired
-    public RssFlowSensor(IFlowActuator<FlowResource> rssFlowActuator) {
-        log.info(String.format("RssFlowSensor has been created with an Actuator of type [%s]",
-                rssFlowActuator.getClass().getName()));
-        this.rssFlowActuator = rssFlowActuator;
+    public RssFlowSensor(Set<IFlowActuator<FlowResource>> rssFlowActuators) {
+        this.rssFlowActuators = rssFlowActuators;
+        for(IFlowActuator flowActuator : rssFlowActuators){
+            log.info(String.format("RssFlowSensor has been created with an Actuator of type [%s]",
+                    flowActuator.getClass().getName()));
+        }
     }
 
     @Override
     public void onChange(Set<FlowResource> resources) throws FlowException {
         log.info(String.format("RssFlowSensor onChange has been called with [%d] resources", resources.size()));
-        rssFlowActuator.doAction(resources);
+        for(IFlowActuator flowActuator : rssFlowActuators){
+            flowActuator.doAction(resources);
+        }
         setLastChangeDate(Calendar.getInstance());
         log.info(String.format("RssFlowSensor onChange has been successfully terminated with [%d] resources",
                 resources.size()));
@@ -57,8 +61,7 @@ public class RssFlowSensor implements IFlowSensor<FlowResource> {
 
     @Scheduled(cron = "${rssflow.cron}")
     public void startSensor() {
-        log.info(String.format("RssFlowSensor has been started with an Actuator of type [%s]",
-                rssFlowActuator.getClass().getName()));
+        log.info("RssFlowSensor has been started");
         Calendar now = Calendar.getInstance();
         log.info(String.format("RssFlowSensor - Start check at [%s]", now.getTime()));
         Set<FlowResource> resources = new HashSet<FlowResource>();

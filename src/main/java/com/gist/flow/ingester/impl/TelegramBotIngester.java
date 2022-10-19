@@ -17,7 +17,7 @@ import java.util.Set;
 
 @Data
 @Slf4j
-@Profile("soffblog")
+@Profile({"soffblog","gist"})
 @Component
 public class TelegramBotIngester extends TelegramLongPollingBot implements IFlowIngester<FlowResource> {
     @Value("${telegram.bot.username}")
