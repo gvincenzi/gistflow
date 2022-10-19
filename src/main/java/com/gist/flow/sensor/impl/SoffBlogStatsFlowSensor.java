@@ -1,7 +1,7 @@
 package com.gist.flow.sensor.impl;
 
 import com.gist.flow.actuator.IFlowActuator;
-import com.gist.flow.actuator.impl.GistFlowActuator;
+import com.gist.flow.actuator.impl.SoffBlogQuoteFlowActuator;
 import com.gist.flow.configuration.RssFlowSensorConfiguration;
 import com.gist.flow.exception.FlowException;
 import com.gist.flow.model.entity.FlowResource;
@@ -29,6 +29,7 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -37,7 +38,7 @@ import java.util.Set;
 @Slf4j
 @Profile("soffblog")
 public class SoffBlogStatsFlowSensor implements IFlowSensor<FlowResource> {
-    private Set<IFlowActuator<FlowResource>> flowActuators;
+    private Set<IFlowActuator<FlowResource>> statsFlowActuators;
 
     @Value("${wpingester.wordPressWSURL}")
     private String wordPressWSURL;
@@ -47,10 +48,10 @@ public class SoffBlogStatsFlowSensor implements IFlowSensor<FlowResource> {
 
     @Autowired
     public SoffBlogStatsFlowSensor(@Autowired Set<IFlowActuator<FlowResource>> flowActuators) {
-        this.flowActuators = flowActuators;
+        setStatsFlowActuators(new HashSet<>(flowActuators));
         for (IFlowActuator<FlowResource> flowActuator : flowActuators) {
-            if (flowActuator.getClass() != GistFlowActuator.class) {
-                getFlowActuators().remove(flowActuator);
+            if (flowActuator.getClass() != SoffBlogQuoteFlowActuator.class) {
+                getStatsFlowActuators().remove(flowActuator);
             } else {
                 log.info(String.format("SoffBlogStatsFlowSensor has been created with an Actuator of type [%s]",
                         flowActuator.getClass().getName()));
@@ -136,7 +137,7 @@ public class SoffBlogStatsFlowSensor implements IFlowSensor<FlowResource> {
     @Override
     public void onChange(Set<FlowResource> resources) throws FlowException {
         log.info(String.format("SoffBlogStatsFlowSensor onChange has been called with [%d] resources", resources.size()));
-        for (IFlowActuator flowActuator : getFlowActuators()) {
+        for (IFlowActuator flowActuator : getStatsFlowActuators()) {
             flowActuator.doAction(resources);
         }
         log.info(String.format("SoffBlogStatsFlowSensor onChange has been successfully terminated with [%d] resources",
