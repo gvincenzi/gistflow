@@ -32,16 +32,18 @@
         </rollingPolicy>
     </appender>
      
-    <!-- LOG everything at INFO level 
-    <root level="info">
-        <appender-ref ref="RollingFile" />
-        <appender-ref ref="Console" />
-    </root-->
- 
-    <!-- LOG "com.gist*" at INFO level -->
-    <logger name="com.gist" level="info">
-        <appender-ref ref="RollingFile" />
-        <appender-ref ref="Console" />
-    </logger>
+    <springProfile name="gist">
+        <root level="info">
+            <appender-ref ref="RollingFile" />
+            <appender-ref ref="Console" />
+        </root>
+    </springProfile>
+
+    <springProfile name="soffblog">
+        <logger name="com.gist" level="info">
+            <appender-ref ref="RollingFile" />
+            <appender-ref ref="Console" />
+        </logger>
+    </springProfile>
  
 </configuration>
