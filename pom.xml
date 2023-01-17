@@ -11,7 +11,7 @@
 
     <groupId>com.gist</groupId>
     <artifactId>flow</artifactId>
-    <version>1.1.0</version>
+    <version>2.0.0</version>
     <name>gistflow</name>
     <description>Gist Flow Manager</description>
 
@@ -19,7 +19,7 @@
 
     <properties>
         <java.version>11</java.version>
-        <telegram.version>4.1.2</telegram.version>
+        <telegram.version>6.1.0</telegram.version>
         <spring-cloud.version>Greenwich.SR4</spring-cloud.version>
     </properties>
 
