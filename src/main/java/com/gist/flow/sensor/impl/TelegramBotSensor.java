@@ -22,6 +22,8 @@ import java.util.Set;
 @Service
 @Profile({"soffblog","gist"})
 public class TelegramBotSensor implements IFlowSensor<FlowResource> {
+    private static final String START = "/start";
+
     @Value("${telegram.bot.admin.id}")
     private Long adminUserId;
 
@@ -44,7 +46,7 @@ public class TelegramBotSensor implements IFlowSensor<FlowResource> {
 
     private void processUpdate(HashSet<FlowResource> flowResources, Update update) {
         logMessage(update);
-        if (update.hasMessage()) {
+        if (update.hasMessage() && !START.equalsIgnoreCase(update.getMessage().getText())) {
             Long user_id = update.getMessage().getFrom().getId();
             if(adminUserId.equals(user_id)){
                 FlowResource flowResource = new FlowResource();
