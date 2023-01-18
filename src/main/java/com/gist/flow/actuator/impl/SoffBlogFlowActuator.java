@@ -27,18 +27,27 @@ public class SoffBlogFlowActuator implements IFlowActuator<FlowResource> {
 	@Value("${telegram.bot.messageHTML}")
 	private String messageHTML;
 
+	@Value("${telegram.bot.admin.title}")
+	private String title;
+
 	@Override
 	public void doAction(Set<FlowResource> resources) throws FlowException {
 		log.info(String.format("SoffBlogFlowActuator doAction has been called with [%d] resources",resources.size()));
 
 		wordPressIngester.ingest(resources);
 
-		telegramBotIngester.message(String.format(messageHTML,resources.size()));
+		if(!isAdminMessage(resources)){
+			telegramBotIngester.message(String.format(messageHTML,resources.size()));
+		}
 		telegramBotIngester.ingest(resources);
 
 		log.info(String.format("SoffBlogFlowActuator doAction has been successfully with [%d] resources",resources.size()));
 	}
-	
+
+	private boolean isAdminMessage(Set<FlowResource> resources) {
+		return resources.size() == 1 && title.equalsIgnoreCase(resources.iterator().next().getName());
+	}
+
 	public Calendar getLastPostDate() throws FlowException{
 		return wordPressIngester.getLastPostDate();
 	}

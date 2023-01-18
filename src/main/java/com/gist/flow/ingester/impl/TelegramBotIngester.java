@@ -2,8 +2,10 @@ package com.gist.flow.ingester.impl;
 
 import com.gist.flow.ingester.IFlowIngester;
 import com.gist.flow.model.entity.FlowResource;
+import com.gist.flow.service.TelegramBot;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -19,7 +21,7 @@ import java.util.Set;
 @Slf4j
 @Profile({"soffblog","gist"})
 @Component
-public class TelegramBotIngester extends TelegramLongPollingBot implements IFlowIngester<FlowResource> {
+public class TelegramBotIngester implements IFlowIngester<FlowResource> {
     @Value("${telegram.bot.username}")
     private String botUsername;
 
@@ -30,37 +32,19 @@ public class TelegramBotIngester extends TelegramLongPollingBot implements IFlow
     private String channelId;
 
     private Integer maxMessage = 5;
+
+    @Autowired
+    private TelegramBot telegramBot;
     
-    @Override
-    public void onUpdateReceived(Update update) {
-        logMessage(update);
-    }
-
-    @Override
-    public void onUpdatesReceived(List<Update> updates) {
-        for (Update update : updates) {
-            logMessage(update);
-        }
-    }
-
-    private void logMessage(Update update) {
-        log.info(update.getMessage() != null ? update.getMessage().getFrom().getUserName() + " " + update.getMessage().getText() : "Message received");
-    }
-
     private SendMessage message(String chatId, FlowResource content) {
         String text = "<b>" + content.getName() + "</b><br><br>" + content.getDescription();
-        return new SendMessage()
-                .setChatId(chatId)
-                .enableHtml(true)
-                .setText(
-                        text
-                                .replace("<br>", "\n")
-                                .replace("<BR>", "\n")
-                                .replace("<p>", "\n")
-                                .replace("<P>", "\n")
-                                .replace("</p>", "\n")
-                                .replace("</P>", "\n")
-                );
+        return prepareMessage(chatId,text
+                .replace("<br>", "\n")
+                .replace("<BR>", "\n")
+                .replace("<p>", "\n")
+                .replace("<P>", "\n")
+                .replace("</p>", "\n")
+                .replace("</P>", "\n"));
     }
 
     @Override
@@ -70,7 +54,7 @@ public class TelegramBotIngester extends TelegramLongPollingBot implements IFlow
             for (FlowResource content : contents) {
                 i++;
                 try {
-                    execute(message("@"+channelId, content)); // Call method to send the message
+                    telegramBot.execute(message("@"+channelId, content)); // Call method to send the message
                 } catch (TelegramApiException e) {
                     log.error(e.getMessage());
                     continue;
@@ -85,13 +69,17 @@ public class TelegramBotIngester extends TelegramLongPollingBot implements IFlow
         }
     }
 
+    public SendMessage prepareMessage(String chat_id, String text) {
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(chat_id);
+        sendMessage.setText(text);
+        sendMessage.enableHtml(Boolean.TRUE);
+        return sendMessage;
+    }
+
     public void message(String text) {
         try {
-            execute(new SendMessage()
-                    .setChatId("@"+channelId)
-                    .enableHtml(true)
-                    .setText(text.replace("<br>", "\n"))
-            ); // Call method to send the message
+            telegramBot.execute(prepareMessage("@"+channelId,text.replace("<br>", "\n")));
             Thread.sleep(5000);
         } catch (TelegramApiException | InterruptedException e) {
             log.error(e.getMessage());
