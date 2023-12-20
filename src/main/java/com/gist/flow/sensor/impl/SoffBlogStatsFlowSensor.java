@@ -38,7 +38,10 @@ import java.util.Set;
 @Slf4j
 @Profile("soffblog")
 public class SoffBlogStatsFlowSensor implements IFlowSensor<FlowResource> {
-    private Set<IFlowActuator<FlowResource>> statsFlowActuators;
+    private static final String WEEK_LABEL = "Statistiche della settimana";
+    private static final String MONTH_LABEL = "Statistiche del mese";
+
+	private Set<IFlowActuator<FlowResource>> statsFlowActuators;
 
     @Value("${wpingester.wordPressWSURL}")
     private String wordPressWSURL;
@@ -60,9 +63,21 @@ public class SoffBlogStatsFlowSensor implements IFlowSensor<FlowResource> {
     }
 
     @Scheduled(cron = "0 30 23 ? * SUN")
-    public void getStats() throws FlowException {
-        try {
-            String data = URLEncoder.encode("method", "UTF-8") + "=getStats&index=DAY&value=7";
+    public void getWeekStats() throws FlowException {
+        statistics(WEEK_LABEL, 7);
+    }
+    
+    @Scheduled(cron = "0 10 10 28-31 * ?")
+    public void getMonthStats() throws FlowException {
+    	final Calendar c = Calendar.getInstance();
+        if (c.get(Calendar.DATE) == c.getActualMaximum(Calendar.DATE)) {
+        	statistics(MONTH_LABEL, 30);
+        }
+    }
+
+	private void statistics(String periodLabel, Integer days) throws FlowException {
+		try {
+            String data = URLEncoder.encode("method", "UTF-8") + "=getStats&index=DAY&value=" + days;
 
             URL wp_ws = new URL(wordPressWSURL);
             URLConnection conn = wp_ws.openConnection();
@@ -106,7 +121,7 @@ public class SoffBlogStatsFlowSensor implements IFlowSensor<FlowResource> {
                     postNumber += Integer.parseInt(count);
                 }
             }
-            flowResource.setName("Statistiche della settimana");
+            flowResource.setName(periodLabel);
             builder.insert(0, String.format("Un totale di %d offerte di lavoro pubblicate e così suddivise in categorie<br>Clicca sul nome della categorie per vedere tutte le offerte sul blog :", postNumber));
             flowResource.setDescription(builder.toString());
             resources.add(flowResource);
@@ -132,7 +147,7 @@ public class SoffBlogStatsFlowSensor implements IFlowSensor<FlowResource> {
         } catch (SAXException e) {
             throw new FlowException(e);
         }
-    }
+	}
 
     @Override
     public void onChange(Set<FlowResource> resources) throws FlowException {
