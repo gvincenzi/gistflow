@@ -1,6 +1,7 @@
 package com.gist.flow.sensor.impl;
 
 import com.gist.flow.actuator.IFlowActuator;
+import com.gist.flow.actuator.impl.GistFlowActuator;
 import com.gist.flow.actuator.impl.SoffBlogFlowActuator;
 import com.gist.flow.exception.FlowException;
 import com.gist.flow.model.entity.FlowResource;
@@ -67,7 +68,7 @@ public class TelegramBotSensor implements IFlowSensor<FlowResource> {
     public TelegramBotSensor(@Autowired Set<IFlowActuator<FlowResource>> flowActuators) {
         setFlowActuators(new HashSet<>(flowActuators));
         for (IFlowActuator<FlowResource> flowActuator : flowActuators){
-            if(flowActuator.getClass() != SoffBlogFlowActuator.class){
+            if(flowActuator.getClass() != SoffBlogFlowActuator.class && flowActuator.getClass() != GistFlowActuator.class){
                 getFlowActuators().remove(flowActuator);
             } else {
                 log.info(String.format("TelegramBotSensor has been created with an Actuator of type [%s]",

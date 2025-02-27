@@ -31,7 +31,7 @@ import java.util.Set;
 @Data
 @Slf4j
 @Service
-@Profile("default")
+@Profile("soffblog")
 public class RssFlowSensor implements IFlowSensor<FlowResource> {
     private Set<IFlowActuator<FlowResource>> rssFlowActuators;
     private Calendar lastChangeDate = Calendar.getInstance();
