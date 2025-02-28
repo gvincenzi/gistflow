@@ -28,16 +28,24 @@ public class SoffBlogFlowActuator implements IFlowActuator<FlowResource> {
 	private String messageHTML;
 
 	@Value("${telegram.bot.admin.title}")
-	private String title;
+	private String adminTitle;
+	
+	@Value("${telegram.bot.assistant.title}")
+	private String assistantTitle;
+	
+	@Value("${telegram.bot.channelId}")
+    private String channelId;
 
 	@Override
 	public void doAction(Set<FlowResource> resources) throws FlowException {
 		log.info(String.format("SoffBlogFlowActuator doAction has been called with [%d] resources",resources.size()));
 
-		wordPressIngester.ingest(resources);
+		if(!isAssistantMessage(resources)){
+			wordPressIngester.ingest(resources);
+		}
 
-		if(!isAdminMessage(resources)){
-			telegramBotIngester.message(String.format(messageHTML,resources.size()));
+		if(!isAdminMessage(resources) && !isAssistantMessage(resources)){
+			telegramBotIngester.message(String.format(messageHTML,resources.size()), "@"+channelId);
 		}
 		telegramBotIngester.ingest(resources);
 
@@ -45,7 +53,11 @@ public class SoffBlogFlowActuator implements IFlowActuator<FlowResource> {
 	}
 
 	private boolean isAdminMessage(Set<FlowResource> resources) {
-		return resources.size() == 1 && title.equalsIgnoreCase(resources.iterator().next().getName());
+		return resources.size() == 1 && adminTitle.equalsIgnoreCase(resources.iterator().next().getName());
+	}
+	
+	private boolean isAssistantMessage(Set<FlowResource> resources) {
+		return resources.size() == 1 && assistantTitle.equalsIgnoreCase(resources.iterator().next().getName());
 	}
 
 	public Calendar getLastPostDate() throws FlowException{

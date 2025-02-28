@@ -21,14 +21,14 @@ import lombok.extern.slf4j.Slf4j;
 @Profile({"soffblog","gist"})
 @Component
 public class TelegramBotIngester implements IFlowIngester<FlowResource> {
-    @Value("${telegram.bot.username}")
+	@Value("${telegram.bot.username}")
     private String botUsername;
+	
+	@Value("${telegram.bot.channelId}")
+    private String channelId;
 
     @Value("${telegram.bot.token}")
     private String botToken;
-
-    @Value("${telegram.bot.channelId}")
-    private String channelId;
 
     private Integer maxMessage = 5;
 
@@ -56,7 +56,7 @@ public class TelegramBotIngester implements IFlowIngester<FlowResource> {
             for (FlowResource content : contents) {
                 i++;
                 try {
-                	telegramClient.execute(message("@"+channelId, content)); // Call method to send the message
+                	telegramClient.execute(message(content.getRecipientID()!=null?content.getRecipientID():channelId, content)); // Call method to send the message
                 } catch (TelegramApiException e) {
                     log.error(e.getMessage());
                     continue;
@@ -77,9 +77,9 @@ public class TelegramBotIngester implements IFlowIngester<FlowResource> {
         return sendMessage;
     }
 
-    public void message(String text) {
+    public void message(String text, String channelId) {
         try {
-        	telegramClient.execute(prepareMessage("@"+channelId,text.replace("<br>", "\n")));
+        	telegramClient.execute(prepareMessage(channelId,text.replace("<br>", "\n")));
             Thread.sleep(5000);
         } catch (TelegramApiException | InterruptedException e) {
             log.error(e.getMessage());

@@ -9,7 +9,7 @@ import org.telegram.telegrambots.longpolling.starter.SpringLongPollingBot;
 import org.telegram.telegrambots.longpolling.util.LongPollingSingleThreadUpdateConsumer;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
-import com.gist.flow.sensor.impl.TelegramBotSensor;
+import com.gist.flow.sensor.impl.TelegramAIAssistantBotSensor;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,7 @@ public class TelegramBot implements SpringLongPollingBot, LongPollingSingleThrea
     private String botToken;
 
     @Autowired
-    private TelegramBotSensor telegramBotSensor;
+    private TelegramAIAssistantBotSensor telegramBotSensor;
     
 	@Override
 	public void consume(Update update) {
