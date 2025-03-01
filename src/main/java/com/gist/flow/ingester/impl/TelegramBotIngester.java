@@ -56,7 +56,7 @@ public class TelegramBotIngester implements IFlowIngester<FlowResource> {
             for (FlowResource content : contents) {
                 i++;
                 try {
-                	telegramClient.execute(message(content.getRecipientID()!=null?content.getRecipientID():channelId, content)); // Call method to send the message
+                	telegramClient.execute(message(content.getRecipientID()!=null?content.getRecipientID():("@"+channelId), content)); // Call method to send the message
                 } catch (TelegramApiException e) {
                     log.error(e.getMessage());
                     continue;
