@@ -24,13 +24,8 @@ public class TelegramBotIngester implements IFlowIngester<FlowResource> {
 	@Value("${telegram.bot.username}")
     private String botUsername;
 	
-	@Value("${telegram.bot.channelId}")
-    private String channelId;
-
     @Value("${telegram.bot.token}")
     private String botToken;
-
-    private Integer maxMessage = 5;
 
     private final TelegramClient telegramClient;
 
@@ -52,19 +47,17 @@ public class TelegramBotIngester implements IFlowIngester<FlowResource> {
     @Override
     public void ingest(Set<FlowResource> contents) {
         try {
-            int i = 0;
             for (FlowResource content : contents) {
-                i++;
-                try {
-                	telegramClient.execute(message(content.getRecipientID()!=null?content.getRecipientID():("@"+channelId), content)); // Call method to send the message
-                } catch (TelegramApiException e) {
-                    log.error(e.getMessage());
-                    continue;
-                }
-
-                if(i == maxMessage) return;
-
-                Thread.sleep(1000);
+            	if(content.getRecipientID()!=null) {
+	                try {
+	                	telegramClient.execute(message(content.getRecipientID(), content)); // Call method to send the message
+	                } catch (TelegramApiException e) {
+	                    log.error(e.getMessage());
+	                    continue;
+	                }
+	
+	                Thread.sleep(1000);
+	            }
             }
         } catch (InterruptedException e) {
             log.error(e.getMessage());
