@@ -4,6 +4,7 @@ import com.gist.flow.actuator.IFlowActuator;
 import com.gist.flow.exception.FlowException;
 import com.gist.flow.model.entity.FlowResource;
 import com.gist.flow.sensor.IFlowSensor;
+import com.gist.flow.service.MistralAIChatService;
 import com.rometools.rome.feed.synd.SyndEntry;
 import com.rometools.rome.feed.synd.SyndFeed;
 import com.rometools.rome.io.FeedException;
@@ -38,6 +39,9 @@ public class QuoteFlowSensor implements IFlowSensor<FlowResource> {
 
     @Value("${quote.energybreak.messageHTML}")
     private String energyBreakMessageHTML;
+    
+    @Autowired
+    private MistralAIChatService mistralAIChatService;
 
     @Autowired
     public QuoteFlowSensor(IFlowActuator<FlowResource> soffBlogQuoteFlowActuator) {
@@ -60,11 +64,11 @@ public class QuoteFlowSensor implements IFlowSensor<FlowResource> {
         try (XmlReader reader = new XmlReader(new URL(feed))) {
             SyndFeed feed = new SyndFeedInput().build(reader);
             for (SyndEntry entry : feed.getEntries()) {
-                FlowResource resource = new FlowResource();
-                resource.setName(entry.getTitle());
-                resource.setDescription(entry.getDescription().getValue() + "\n\n Source : " + entry.getUri());
-                resource.setStartDateOfValidity(Calendar.getInstance());
-                resources.add(resource);
+                FlowResource translatedResource = new FlowResource();
+                translatedResource.setName(entry.getTitle());
+                translatedResource.setDescription(mistralAIChatService.translateQuote(entry.getDescription().getValue(), "italian") + "\n\nFonte : " + entry.getUri());
+                translatedResource.setStartDateOfValidity(Calendar.getInstance());
+                resources.add(translatedResource);
             }
 
             onChange(resources);
