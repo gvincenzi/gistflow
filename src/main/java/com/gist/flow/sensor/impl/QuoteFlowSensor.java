@@ -40,6 +40,9 @@ public class QuoteFlowSensor implements IFlowSensor<FlowResource> {
     @Value("${quote.energybreak.messageHTML}")
     private String energyBreakMessageHTML;
     
+    @Value("${telegram.bot.channelId}")
+    private String channelId;
+    
     @Autowired
     private MistralAIChatService mistralAIChatService;
 
@@ -64,11 +67,12 @@ public class QuoteFlowSensor implements IFlowSensor<FlowResource> {
         try (XmlReader reader = new XmlReader(new URL(feed))) {
             SyndFeed feed = new SyndFeedInput().build(reader);
             for (SyndEntry entry : feed.getEntries()) {
-                FlowResource translatedResource = new FlowResource();
-                translatedResource.setName(entry.getTitle());
-                translatedResource.setDescription(mistralAIChatService.translateQuote(entry.getDescription().getValue(), "italian") + "\n\nFonte : " + entry.getUri());
-                translatedResource.setStartDateOfValidity(Calendar.getInstance());
-                resources.add(translatedResource);
+                FlowResource resource = new FlowResource();
+                resource.setName(entry.getTitle());
+                resource.setDescription(mistralAIChatService.translateQuote(entry.getDescription().getValue(), "italian") + "\n\nFonte : " + entry.getUri());
+                resource.setStartDateOfValidity(Calendar.getInstance());
+                resource.setRecipientID("@"+channelId);
+                resources.add(resource);
             }
 
             onChange(resources);
