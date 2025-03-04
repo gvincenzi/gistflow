@@ -9,4 +9,5 @@ public class FlowResource {
 	private String name;
 	private String description;
 	private Calendar startDateOfValidity = Calendar.getInstance();
+	private String recipientID;
 }

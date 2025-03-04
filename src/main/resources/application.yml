@@ -1,4 +1,8 @@
 spring:
   application:
     name: byoflows
-
+  main:
+    web-application-type: NONE
+  ai:
+   mistralai:
+    api-key: API-KEY
