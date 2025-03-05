@@ -2,23 +2,16 @@
 
 ## Overview
 
-GistFlow is an open source content ingestion engine : you can define and schedule your contents publication flows from different sources and to different destinations.
+GistFlow is an open-source content ingestion engine that allows you to define and schedule content publication flows from various sources to different destinations.
 
-## How it works
-GISTFlow system is based on three components:
-- Sensors
-- Actuators
-- Ingesters 
+### Components
+GistFlow is built on three main components:
 
-### Sensor
-A sensor is a an object that observes a source continuously and detects all changes and updates : it will be an RSS reader, an Active Directory, a chatbot.
+1. **Sensors**: These observe a source continuously and detect changes or updates. Examples include RSS readers, Active Directory, or chatbots.
 
-### Actuator
-An actuator is a bridge object that realize a cross relation between multiple sensors and ingesters.
- When a linked sensor detects a change, an actuator receives the list of new contents, applies an eventual data pretreatment, and launches a list of ingesters to publish the list of contents to different destinations.
+2. **Actuators**: These act as bridges between sensors and ingesters. When a linked sensor detects a change, the actuator receives the new content, applies any necessary pre-treatment, and triggers ingesters to publish the content.
 
-### Ingester
-An ingester is a software component with the capability of publish a content to a specific platform via a specific API.
+3. **Ingesters**: These are responsible for publishing content to specific platforms via APIs.
 
 ## Features
 
