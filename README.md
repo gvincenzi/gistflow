@@ -1,8 +1,8 @@
-# GistFlow
+# GistFlow, an open source content ingestion engine
 
 ## Overview
 
-GistFlow is a project your contents publication flows from different sources and to different destinations.
+GistFlow is an open source content ingestion engine : you can define and schedule your contents publication flows from different sources and to different destinations.
 
 ## How it works
 GISTFlow system is based on three components:
