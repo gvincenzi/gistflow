@@ -30,6 +30,7 @@ public class TelegramAIAssistantBotSensor implements IFlowSensor<FlowResource> {
 	private static final String JOB_ROLE = "/job";
     private static final String TOP_10 = "/top10";
     private static final String JOB_INTERVIEW = "/int";
+    private static final String BLOG_POST = "/post";
     
     @Value("${telegram.bot.username}")
     private String botUsername;
@@ -118,6 +119,17 @@ public class TelegramAIAssistantBotSensor implements IFlowSensor<FlowResource> {
                 flowResource.setStartDateOfValidity(Calendar.getInstance());
                 flowResource.setName(assistantTitle);
                 flowResource.setDescription(mistralAIChatService.getJobRoleInterview(update.getMessage().getText().substring(JOB_INTERVIEW.length())));
+                flowResource.setRecipientID(Long.toString(update.getMessage().getChatId()));
+
+                flowResources.add(flowResource);
+            } 
+        } else if (update.hasMessage() && update.getMessage().getText().startsWith(BLOG_POST)) {
+        	Long user_id = update.getMessage().getFrom().getId();
+            if(adminUserId.equals(user_id)){
+                FlowResource flowResource = new FlowResource();
+                flowResource.setStartDateOfValidity(Calendar.getInstance());
+                flowResource.setName(assistantTitle);
+                flowResource.setDescription(mistralAIChatService.getBlogPost());
                 flowResource.setRecipientID(Long.toString(update.getMessage().getChatId()));
 
                 flowResources.add(flowResource);

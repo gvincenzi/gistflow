@@ -38,6 +38,9 @@ public class MistralAIChatService {
 	@Value("classpath:/prompts/translation.st")
 	private Resource translationResource;
 	
+	@Value("classpath:/prompts/blog-post.st")
+	private Resource blogPost;
+	
 	@Value("${telegram.bot.assistant.title}")
 	private String assistantTitle;
 	
@@ -72,6 +75,14 @@ public class MistralAIChatService {
 		SystemPromptTemplate systemPromptTemplate = new SystemPromptTemplate(this.translationResource);
 		Message systemMessage = systemPromptTemplate.createMessage(Map.of("language", "italian"));
 		Prompt prompt = new Prompt(List.of(systemMessage, userMessage));
+		ChatResponse response = this.chatModel.call(prompt);
+		return response.getResult().getOutput().getText();
+	}
+
+	public String getBlogPost() {
+		SystemPromptTemplate systemPromptTemplate = new SystemPromptTemplate(this.blogPost);
+		Message systemMessage = systemPromptTemplate.createMessage(Map.of("name", assistantTitle, "state", "Italy", "language", "italian"));
+		Prompt prompt = new Prompt(List.of(systemMessage));
 		ChatResponse response = this.chatModel.call(prompt);
 		return response.getResult().getOutput().getText();
 	}
