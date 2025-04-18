@@ -106,7 +106,7 @@ public class RssFlowSensor implements IFlowSensor<FlowResource> {
                         resources.add(resource);
                     }
                 }
-            } catch (IOException | FeedException e) {
+            } catch (IOException | FeedException | IllegalArgumentException e) {
                 log.error(e.getMessage());
                 continue;
             }
