@@ -1,28 +1,23 @@
 package com.gist.flow.sensor.impl;
 
-import com.gist.flow.actuator.IFlowActuator;
-import com.gist.flow.exception.FlowException;
-import com.gist.flow.model.entity.FlowResource;
-import com.gist.flow.sensor.IFlowSensor;
-import com.gist.flow.service.MistralAIChatService;
-import com.rometools.rome.feed.synd.SyndEntry;
-import com.rometools.rome.feed.synd.SyndFeed;
-import com.rometools.rome.io.FeedException;
-import com.rometools.rome.io.SyndFeedInput;
-import com.rometools.rome.io.XmlReader;
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
+import java.util.Calendar;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.Calendar;
-import java.util.HashSet;
-import java.util.Set;
+import com.gist.flow.actuator.IFlowActuator;
+import com.gist.flow.exception.FlowException;
+import com.gist.flow.model.entity.FlowResource;
+import com.gist.flow.sensor.IFlowSensor;
+import com.gist.flow.service.MistralAIChatService;
+
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 @Data
 @Slf4j
@@ -30,9 +25,6 @@ import java.util.Set;
 @Profile("soffblog")
 public class QuoteFlowSensor implements IFlowSensor<FlowResource> {
     private IFlowActuator<FlowResource> rssFlowActuator;
-
-    @Value("${quote.feed}")
-    private String feed;
 
     @Value("${quote.energybreak.title}")
     private String energyBreakTitle;
@@ -42,6 +34,9 @@ public class QuoteFlowSensor implements IFlowSensor<FlowResource> {
     
     @Value("${telegram.bot.channelId}")
     private String channelId;
+    
+    @Value("${telegram.bot.assistant.title}")
+	private String assistantTitle;
     
     @Autowired
     private MistralAIChatService mistralAIChatService;
@@ -64,21 +59,17 @@ public class QuoteFlowSensor implements IFlowSensor<FlowResource> {
     @Scheduled(cron = "0 0 6 ? * *")
     public void startSensor() {
         Set<FlowResource> resources = new HashSet<>();
-        try (XmlReader reader = new XmlReader(new URL(feed))) {
-            SyndFeed feed = new SyndFeedInput().build(reader);
-            for (SyndEntry entry : feed.getEntries()) {
-                FlowResource resource = new FlowResource();
-                resource.setName(entry.getTitle());
-                resource.setDescription(mistralAIChatService.translateQuote(entry.getDescription().getValue(), "italian") + "\n\nFonte : " + entry.getUri());
-                resource.setStartDateOfValidity(Calendar.getInstance());
-                resource.setRecipientID("@"+channelId);
-                resources.add(resource);
-            }
-
-            onChange(resources);
-        } catch (IOException | FeedException | FlowException e) {
-            log.error(e.getMessage());
-        }
+        FlowResource resource = new FlowResource();
+        resource.setName("Citazione del giorno - " + assistantTitle);
+        resource.setDescription(mistralAIChatService.quote("italian"));
+        resource.setStartDateOfValidity(Calendar.getInstance());
+        resource.setRecipientID("@"+channelId);
+        resources.add(resource);
+        try {
+			onChange(resources);
+		} catch (FlowException e) {
+			log.error(e.getMessage());
+		}
     }
 
     @Scheduled(cron = "0 0 0 ? * *")

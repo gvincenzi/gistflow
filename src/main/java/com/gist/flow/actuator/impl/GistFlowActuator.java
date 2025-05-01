@@ -20,9 +20,9 @@ public class GistFlowActuator implements IFlowActuator<FlowResource> {
 
 	@Override
 	public void doAction(Set<FlowResource> resources) throws FlowException {
-		log.info(String.format("CheckFlowActuator doAction has been called with [%d] resources",resources.size()));
+		log.info(String.format("GistFlowActuator doAction has been called with [%d] resources",resources.size()));
 		telegramBotIngester.ingest(resources);
-		log.info(String.format("CheckFlowActuator doAction has been successfully with [%d] resources",resources.size()));
+		log.info(String.format("GistFlowActuator doAction has been successfully with [%d] resources",resources.size()));
 	}
 
 }

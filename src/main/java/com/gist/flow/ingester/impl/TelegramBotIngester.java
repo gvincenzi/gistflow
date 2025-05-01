@@ -46,6 +46,7 @@ public class TelegramBotIngester implements IFlowIngester<FlowResource> {
 
     @Override
     public void ingest(Set<FlowResource> contents) {
+    	log.info(String.format("TelegramBotIngester ingest has been called with [%d] contents", contents.size()));
         try {
             for (FlowResource content : contents) {
             	if(content.getRecipientID()!=null) {
